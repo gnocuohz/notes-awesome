@@ -151,6 +151,7 @@ XX:+UseCMSInitiatingOccupancyOnly
 
 ## 开源框架知识
 ##### 1. 简单讲讲tomcat结构，以及其类加载器流程，线程模型等。
+
 ##### 2. tomcat如何调优，涉及哪些参数 。  
 > server.xml  
 > - **Connector节点**  
@@ -166,8 +167,18 @@ XX:+UseCMSInitiatingOccupancyOnly
 ##### 3. 讲讲Spring加载流程。
 ##### 4. Spring AOP的实现原理。
 ##### 5. 讲讲Spring事务的传播属性。
+> REQUIRED 如果存在一个事务，则支持当前事务。如果没有事务则开启一个新的事务  
+> MANDATORY 支持当前事务，如果当前没有事务，就抛出异常  
+> NEVER 以非事务方式执行，如果当前存在事务，则抛出异常  
+> NOT_SUPPORTED 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起  
+> REQUIRES_NEW 新建事务，如果当前存在事务，把当前事务挂起  
+> SUPPORTS 支持当前事务，如果当前没有事务，就以非事务方式执行  
+> NESTED 支持当前事务，新增Savepoint点，与当前事务同步提交或回滚  
+
 ##### 6. Spring如何管理事务的。
+
 ##### 7. Spring怎么配置事务（具体说出一些关键的xml 元素）。
+
 ##### 8. 说说你对Spring的理解，非单例注入的原理？它的生命周期？循环注入的原理，aop的实现原理，说说aop中的几个术语，它们是怎么相互工作的。
 ##### 9. Springmvc 中DispatcherServlet初始化过程。
 ##### 10. netty的线程模型，netty如何基于reactor模型上实现的。
