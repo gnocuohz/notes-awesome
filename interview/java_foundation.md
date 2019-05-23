@@ -109,13 +109,46 @@
 > 默认8:1
 
 ##### 3. JVM内存为什么要分成新生代，老年代，持久代。新生代中为什么要分为Eden和Survivor。
+> 新生代中，每次垃圾收集时都发现大批对象死去，只有少量存活，那就选用复制算法（效率高不会产生内存碎片）。老年代因为对象存活率高，没有额外空间对它进行分配担保，那就必须使用“标记-清理”或者“标记-整理”等重量级算法来进行回收。
+> 分为Eden和Survivor主要还是为了解决垃圾回收产生内存碎片。
 
 ##### 4. JVM中一次完整的GC流程是怎样的，对象如何晋升到老年代，说说你知道的几种主要的JVM参数。
+> - Partial GC：并不收集整个GC堆的模式  
+>     - Young GC：只收集young gen的GC
+>     - Old GC：只收集old gen的GC。只有CMS的concurrent collection是这个模式
+>     - Mixed GC：收集整个young gen以及部分old gen的GC。只有G1有这个模式
+> - Full GC：收集整个堆，包括young gen、old gen、perm gen（如果存在的话）等所有部分的模式。
+> 最简单的分代式GC策略，按HotSpot VM的serial GC的实现来看，触发条件是：  
+young GC：当young gen中的eden区分配满的时候触发。注意young GC中有部分存活对象会晋升到old gen，所以young GC后old gen的占用量通常会有所升高。  
+full GC：当准备要触发一次young GC时，如果发现统计数据说之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
+
+> -XX:MaxTenuringThreshold 默认值15
+> -XX:TargetSurvivorRatio survivor区的目标使用率。默认50
+
 ##### 5. 你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms和G1，包括原理，流程，优缺点。 垃圾回收算法的实现原理。
+
+
 ##### 6. 当出现了内存溢出，你怎么排错。
+`
+jmap -dump:live,format=b,file=/home/heap.bin pid
+`
+> IBM的MemoryAnalyzer或HeapAnalyzer
+
 ##### 7. JVM内存模型的相关知识了解多少，比如重排序，内存屏障，happen-before，主内存，工作内存等。
+> JMM屏蔽各种硬件和操作系统的内存访问差异，主要目标是定义程序中各个变量的访问规则。  
+> 所有变量都存在主内存中，线程对变量操作只能先从主存拷贝再修改。
+> 原子性：原子性变量操作包括read、load、assign、use、store和write。lock、unlock对应的synchronized块之间的操作也具备原子性。  
+> 可见性：当一个线程修改了共享变量的值，其他线程能够立即得知这个修改。volatile关键字，synchronized和final也可以保证。  
+> 有序性：在本线程所有操作都是有序的，一个线程观察另一个线程所有操作都是无序的。  
+
+> 指令重排：编译器优化的重排、指令并行的重排（CPU流水线）、内存系统的重排（三级缓存和内存存在同步时间差）  
+> 内存屏障：插入内存屏障禁止在内存屏障前后的指令执行重排序优化  
+> happen-before：程序次序规则（一个线程内顺序执行）、管程锁定（unlock先写lock）、volatile（写先于读）、线程启动|终止|中断、对象终结、传递性（A先行B，B先行C，A先行C）
+
 ##### 8. 简单说说你了解的类加载器，可以打破双亲委派么，怎么打破。
+
 ##### 9. 讲讲JAVA的反射机制。
+
 ##### 10. 你们线上应用的JVM参数有哪些。  
 `
 -server -Xms${2*$MEM_TOTAL/5}g -Xmx${2*$MEM_TOTAL/5}g -XX:MaxDirectMemorySize=${$MEM_TOTAL/4}g -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -XX:NewRatio=2 -XX:SurvivorRatio=10 -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:CMSMaxAbortablePrecleanTime=5000 -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 
