@@ -1,0 +1,2 @@
+父类就是ThreadPoolExecutor#runWorker普通线程池
+只是ThreadPoolExecutor#getTask从ScheduledThreadPoolExecutor.DelayedWorkQueue中获取，类似 DelayQueue + PriorityQueue

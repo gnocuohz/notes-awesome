@@ -144,8 +144,16 @@ jmap -dump:live,format=b,file=/home/heap.bin pid
 > 指令重排：编译器优化的重排、指令并行的重排（CPU流水线）、内存系统的重排（三级缓存和内存存在同步时间差）  
 > 内存屏障：插入内存屏障禁止在内存屏障前后的指令执行重排序优化  
 > happen-before：程序次序规则（一个线程内顺序执行）、管程锁定（unlock先写lock）、volatile（写先于读）、线程启动|终止|中断、对象终结、传递性（A先行B，B先行C，A先行C）
+https://blog.csdn.net/javazejian/article/details/72772461#%E7%90%86%E8%A7%A3java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E4%B8%8Ejava%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B
 
 ##### 8. 简单说说你了解的类加载器，可以打破双亲委派么，怎么打破。
+> 加载：加载Class（可以从jar、war、动态代理、jsp等获取），在内存中生成代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。
+> 验证：确保Class文件的字节流中包含的信息符合当前虚拟机的要求，不会危害虚拟机自身安全。文件格式、元数据验证、字节码验证、符号引用验证。
+> 准备：为类变量分配内存并设置类变量的初始值，即在方法区中分配变量所使用的内存空间。静态变量初始值为0，final 静态变量的初始值为实际值。
+> 解析：将常量池的符号引用（Class文件中的CONSTANT_xxx_INFO）替换成直接引用。
+> 初始化：将准备阶段的初始值赋值（静态成员）。
+
+
 
 ##### 9. 讲讲JAVA的反射机制。
 
@@ -198,7 +206,9 @@ XX:+UseCMSInitiatingOccupancyOnly
 > threadPriority 线程优先级  
 
 ##### 3. 讲讲Spring加载流程。
+
 ##### 4. Spring AOP的实现原理。
+
 ##### 5. 讲讲Spring事务的传播属性。
 > REQUIRED 如果存在一个事务，则支持当前事务。如果没有事务则开启一个新的事务  
 > MANDATORY 支持当前事务，如果当前没有事务，就抛出异常  
