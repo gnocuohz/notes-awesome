@@ -234,16 +234,58 @@ XX:+UseCMSInitiatingOccupancyOnly
 ##### 17. springboot启动机制。
 
 ##操作系统
-1. Linux系统下你关注过哪些内核参数，说说你知道的。
-2. Linux下IO模型有几种，各自的含义是什么。
-3. epoll和poll有什么区别。
-4. 平时用到哪些Linux命令。
-5. 用一行命令查看文件的最后五行。
-6. 用一行命令输出正在运行的java进程。
-7. 介绍下你理解的操作系统中线程切换过程。
-8. 进程和线程的区别。
-9. top 命令之后有哪些内容，有什么作用。
-10. 线上CPU爆高，请问你如何找到问题所在。
+##### 1. Linux系统下你关注过哪些内核参数，说说你知道的。
+**配置文件：#vi /etc/sysctl.conf**  
+net.core.somaxconn = 128  全连接队列大小  socket创建时也可以传入  
+net.ipv4.tcp_max_syn_backlog = 128  半连接队列的大小  
+net.ipv4.tcp_keepalive_time = 7200  tcp keepalive 防止长时间无流量，长时间占用句柄  
+net.ipv4.tcp_fin_timeout = 60   FIN_WAIT_2状态的超时时长  
+
+**配置文件：#vi /etc/security/limits.conf**  
+句柄数量：  
+soft　　nofile　　1024  
+hard　　nofile　　1024  
+##### 2. Linux下IO模型有几种，各自的含义是什么。
+- 阻塞IO
+- 非阻塞IO
+- IO复用
+- 信号驱动IO
+- 异步IO
+
+##### 3. epoll和poll有什么区别。
+
+##### 4. 平时用到哪些Linux命令。
+ps -ef  
+tail  
+less  
+grep  -A B C  
+##### 5. 用一行命令查看文件的最后五行。
+head -n 5 file  
+tail -n 5 file  
+tail -500f file
+##### 6. 用一行命令输出正在运行的java进程。
+ps -ef | grep java
+##### 7. 介绍下你理解的操作系统中线程切换过程。
+##### 8. 进程和线程的区别。
+https://blog.csdn.net/swjtuwyp/article/details/51469552 
+1. 进程是操作系统分配资源的最小单位，线程是程序执行的最小单位（CPU调度线程） 
+2. 进程是线程的容器，一个进程由一个或多个线程组成，线程是一个进程中代码的不同执行路径 
+3. 进程之间相互独立，但同一进程下的各个线程之间共享程序的内存空间(包括代码段、数据集、堆等)及一些进程级的资源(如打开文件和信号)，某进程内的线程在其它进程不可见； 
+4. 调度和切换：线程上下文切换比进程上下文切换要快得多。
+##### 9. top 命令之后有哪些内容，有什么作用。
+1. 平均负载：整体的负载情况，可能是CPU或者I/O忙
+2. tasks
+3. cpu
+4. mem
+5. swap
+6. pid：RES、VIRT等 
+##### 10. 线上CPU爆高，请问你如何找到问题所在。
+```bash
+jstack -l pid > *.log
+
+top -H p pid
+printf %x 线程ID
+```
 
 ##多线程
 

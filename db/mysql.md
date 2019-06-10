@@ -1,6 +1,6 @@
 ## 一、知识点
 
-## 二、常见参数配置
+## 二、参数配置
 #### transaction-isolation：  
 推荐配置为READ-COMMITTED。
 #### binlog_format参数
