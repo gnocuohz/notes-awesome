@@ -1,3 +1,6 @@
+### NettyChannel
+![](resources/middleware/netty/netty_channel.png)
+
 ### Selector & SelectionKey
 ```java
 // netty 实现了 SelectedSelectionKeySet 替换了 SelectorImpl#selectedKeys 和 SelectorImpl#publicSelectedKeys
@@ -7,8 +10,9 @@ public abstract class SelectorImpl extends AbstractSelector {
     private Set<SelectionKey> publicKeys;
     private Set<SelectionKey> publicSelectedKeys;
     
-   ...
-    
+     /**
+      *  省略部分代码
+      */
 }
 ```
 SelectedSelectionKeySet 以数组的方式实现，将时间复杂度降为O(1)。  

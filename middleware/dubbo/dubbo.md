@@ -1,5 +1,5 @@
 ### invoker 调用链
-![](resources/middleware/dubbo_invoker.jpg)
+![](resources/middleware/dubbo/dubbo_invoker.jpg)
 
 ### provider 调用链
 ```java
@@ -26,4 +26,4 @@ MultiMessageHandler
                 HeaderExchangeHandler
                     DubboProtocol#requestHandler
 ```
-![](resources/middleware/dubbo_provider_invoker_filter.png)   
+![](resources/middleware/dubbo/dubbo_provider_invoker_filter.png)   
