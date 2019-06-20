@@ -1,8 +1,8 @@
-private final transient ReentrantLock lock = new ReentrantLock();
-private final Condition available = lock.newCondition();
-// 优先级队列
-private final PriorityQueue<E> q = new PriorityQueue<E>();
-添加时如果优先级队列第一个就是本身就signal
+private final transient ReentrantLock lock = new ReentrantLock();  
+private final Condition available = lock.newCondition();  
+// 优先级队列  
+private final PriorityQueue<E> q = new PriorityQueue<E>();  
+添加时如果优先级队列第一个就是本身就signal  
 ```java
 public boolean offer(E e) {
     final ReentrantLock lock = this.lock;
@@ -21,7 +21,7 @@ public boolean offer(E e) {
     }
 }
 ```
-signal时如果正在available.awaitNanos(delay)，就会重新peek优先级队列第一个对象
+signal时如果正在available.awaitNanos(delay)，就会重新peek优先级队列第一个对象  
 ```java
 public E take() throws InterruptedException {
     final ReentrantLock lock = this.lock;

@@ -1,10 +1,10 @@
-/** The lock for guarding barrier entry */
-private final ReentrantLock lock = new ReentrantLock();
-/** Condition to wait on until tripped */
-private final Condition trip = lock.newCondition();
+/** The lock for guarding barrier entry */  
+private final ReentrantLock lock = new ReentrantLock();  
+/** Condition to wait on until tripped */  
+private final Condition trip = lock.newCondition();  
 
-没有实现AQS，直接使用ReentrantLock.newCondition().await()
-如果await数量等于0 if (index == 0) 执行nextGeneration()，执行 Condition.signalAll() 唤醒所有等待的线程
+没有实现AQS，直接使用ReentrantLock.newCondition().await()  
+如果await数量等于0 if (index == 0) 执行nextGeneration()，执行 Condition.signalAll() 唤醒所有等待的线程  
 ```java
 private int dowait(boolean timed, long nanos)
     throws InterruptedException, BrokenBarrierException,
