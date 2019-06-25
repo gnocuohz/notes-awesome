@@ -200,8 +200,8 @@ XX:+UseCMSInitiatingOccupancyOnly
 > maxConnections 最大链接数  (NIO default=10000 APR/native default=8192)  
 > maxThreads 工作线程池 (default=200)  
 > - **Executor节点**  
-> maxThreads  
-> minSpareThreads 最小线程数  
+> maxThreads  (default=200)  
+> minSpareThreads 最小线程数  (default=25)  
 > threadPriority 线程优先级  
 
 ##### 3. 讲讲Spring加载流程。
