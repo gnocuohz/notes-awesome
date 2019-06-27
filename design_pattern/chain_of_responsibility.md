@@ -2,8 +2,7 @@
 #### 1. ApplicationFilterFactory 创建 ApplicationFilterChain，并将 Filter 添加进去
 ApplicationDispatcher#invoke(ServletRequest, ServletResponse, State)  
 ```java
-private void invoke(ServletRequest request, ServletResponse response,
-        State state) throws IOException, ServletException {
+private void invoke(ServletRequest request, ServletResponse response, State state) throws IOException, ServletException {
     /**
     * 省略代码
     */
@@ -86,11 +85,9 @@ filter.doFilter(request, response, this); 就是用户实现的 javax.servlet.Fi
 DispatcherServlet#doDispatch(HttpServletRequest, HttpServletResponse)
 ```java
 protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-    
     /**
     * 省略代码
     */
-    
     try {
         ModelAndView mv = null;
         Exception dispatchException = null;

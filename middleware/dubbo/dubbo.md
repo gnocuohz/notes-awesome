@@ -27,3 +27,9 @@ MultiMessageHandler
                     DubboProtocol#requestHandler
 ```
 ![](resources/middleware/dubbo/dubbo_provider_invoker_filter.png)   
+
+### SPI
+##### wrapper
+ExtensionLoader#createExtension  
+ExtensionLoader#loadResource 时被判断为 wrapper 的实现类，会包装实际的SPI扩展。
+![](resources/middleware/dubbo/wrapper_class.jpg)

@@ -23,13 +23,37 @@ http://tech.dianwoda.com/2018/02/09/rocketmq-reconsume/
 ## 二、架构
 ### 1. NameServer
 无状态节点，可集群部署，节点之间无任何信息同步。
+##### 路由元数据
+![](resources/middleware/rocketmq/route_meta.jpg)
+##### 定时任务
+每10s扫描一次RouteInfoManager#brokerLiveTable，如果 BrokerLiveInfo#lastUpdateTimestamp 超过120s移除失效Broker，并断开连接。
+##### 小结
+![](resources/middleware/rocketmq/nameserver_summary.jpg)
 ### 2. Broker
 BrokerId为0表示Master，非0表示Slave。注意：当前RocketMQ版本在部署架构上支持一Master多Slave，但只有BrokerId=1的从服务器才会参与消息的读负载。  
-每个Broker与NameServer集群中的**所有节点建立长连接**，定时注册Topic信息到所有NameServer。**心跳包中包含当前Broker信息(IP+端口等)以及存储所有Topic信息**。
+每个Broker与NameServer集群中的**所有节点建立长连接**，定时注册Topic信息到所有NameServer。
+##### 定时任务
+1. 每30s向集群中所有 NameServer 发送心跳
+![](resources/middleware/rocketmq/heartbeat_msg.jpg)
+2. ConfigManager#persist 每10s持久化消费进度
+
+##### consumequeue构建
+
+##### 重启和崩溃
+
 ### 3. Producer
-与NameServer集群中的其中**一个节点（随机选择）建立长连接**，定期从NameServer获取Topic路由信息，并向提供Topic 服务的**所有Master建立长连接**（从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息），且**定时向Master发送心跳**。Producer完全无状态，可集群部署。
+与NameServer集群中的其中**一个节点（随机选择）建立长连接**，并向提供Topic 服务的**所有Master建立长连接**（从NameServer中获取当前发送的Topic存在哪些Broker上，轮询从队列列表中选择一个队列，然后与队列所在的Broker建立长连接从而向Broker发消息），且**定时向Master发送心跳**。Producer完全无状态，可集群部署。
+##### 定时任务
+30s从NameServer获取Topic路由信息。
+##### 故障延迟机制
+
 ### 4. Consumer
 与NameServer集群中的其中**一个节点（随机选择）建立长连接**，定期从NameServer获取Topic路由信息，并向提供Topic服务的**所有Master、Slave建立长连接**，且**定时向Master、Slave发送心跳**。  
 Consumer既可以从Master订阅消息，也可以从Slave订阅消息，消费者在向Master拉取消息时，Master服务器会根据拉取偏移量与最大偏移量的距离（判断是否读老消息，产生读I/O），以及从服务器是否可读等因素建议下一次是从Master还是Slave拉取。
-
 Producer、Consumer连一台NameServer，Broker连所有NameServer，Producer连一台Broker，Consumer连所有Broker。
+##### 负载均衡
+20s进行一次负载  
+从 nameserver 上 RebalanceImpl#topicSubscribeInfoTable 获得的 consumequeue 信息与从 broker 上获得 clientIdList（org/apache/rocketmq/client/impl/consumer/RebalanceImpl.java:264）对比，有变化则重新负载。
+##### 消费进度持久化
+5s上报一次消费进度
+ConsumeMessageConcurrentlyService#processConsumeResult 每次保存 RemoteBrokerOffsetStore#updateOffset 当前消息最小的offset
