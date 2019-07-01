@@ -22,9 +22,9 @@
 ##### 11. IO模型有哪些，讲讲你理解的nio ，他和bio，aio的区别是啥，谈谈reactor模型。
 
 ##### 12. 反射的原理，反射创建类实例的三种方式是什么。
-
+Class.forName Object.getClass() Class.class
 ##### 13. 反射中，Class.forName和ClassLoader区别 。
-> Class.forName会初始化，lassLoader只加载。
+> Class.forName会初始化，classLoader只加载。
 
 ##### 14. 描述动态代理的几种实现方式，分别说出相应的优缺点。  
 > JDK动态代理、CGLIB(基于ASM包装)。  
@@ -372,8 +372,10 @@ https://baike.baidu.com/item/HTTP%E7%8A%B6%E6%80%81%E7%A0%81/5053660?fr=aladdin
 
 
 ##### 6. TCP/IP如何保证可靠性，说说TCP头的结构。
-
+ip头：报文长度、ttl、协议、校验和、源ip、目标ip
+tcp：源端口、目标端口、序列号、确认号、状态位、滑动窗口、校验和
 ##### 7. 如何避免浏览器缓存。
+
 ##### 8. 如何理解HTTP协议的无状态性。
 ##### 9. 简述Http请求get和post的区别以及数据包格式。
 ##### 10. HTTP有哪些method
@@ -507,7 +509,9 @@ https://www.cnblogs.com/rjzheng/p/9041659.html
 ##### 2. 如何防止缓存击穿和雪崩。
 ##### 3. 缓存数据过期后的更新如何设计。
 ##### 4. redis的list结构相关的操作。
+lpop lpush rpop rpush blpop brpop lrange lrem
 ##### 5. Redis的数据结构都有哪些。
+string hash list set zset 
 ##### 6. Redis的使用要注意什么，讲讲持久化方式，内存设置，集群的应用和优劣势，淘汰策略等。
 https://www.cnblogs.com/kevingrace/p/5685332.html
 
@@ -519,14 +523,30 @@ https://www.cnblogs.com/kevingrace/p/5685332.html
 6. no-enviction（驱逐）：禁止驱逐数据
 ##### 7. redis2和redis3的区别，redis3内部通讯机制。
 ##### 8. 当前redis集群有哪些玩法，各自优缺点，场景。
+https://www.cnblogs.com/rjzheng/p/10360619.html
 ##### 9. Memcache的原理，哪些数据适合放在缓存中。
 ##### 10. redis和memcached 的内存管理的区别。
 ##### 11. Redis的并发竞争问题如何解决，了解Redis事务的CAS操作吗。
 ##### 12. Redis的选举算法和流程是怎样的。
 ##### 13. redis的持久化的机制，aof和rdb的区别。
+1. RDB（默认） fork子进程，写时复制  
+save 900 1      #900秒内有至少1个键被更改则进行快照  
+save 300 10     #300秒内有至少10个键被更改则进行快照  
+save 60 10000   #60秒内有至少10000个键被更改则进行快照  
+2. AOf
+appendfsync always   # 每次执行写入都会执行同步，最安全也最慢  
+appendfsync everysec   # 每秒执行一次同步操作  
+auto-aof-rewrite-percentage 100  # 当目前的AOF文件大小超过上一次重写时的AOF文件大小的百分之多少时会再次进行重写，如果之前没有重写过，则以启动时的AOF文件大小为依据
 ##### 14. redis的集群怎么同步的数据的。
+主从复制是非阻塞的  
+
 ##### 15. 知道哪些redis的优化操作。
 ##### 16. Reids的主从复制机制原理。
+全量同步：  
+master服务器会开启一个后台进程用于将redis中的数据生成一个rdb文件，与此同时，服务器会缓存所有接收到的来自客户端的写命令（包含增、删、改），当后台保存进程处理完毕后，会将该rdb文件传递给slave服务器，而slave服务器会将rdb文件保存在磁盘并通过读取该文件将数据加载到内存，在此之后master服务器会将在此期间缓存的命令通过redis传输协议发送给slave服务器，然后slave服务器将这些命令依次作用于自己本地的数据集上最终达到数据的一致性。  
+部分同步：  
+从redis 2.8开始，即使主从连接中途断掉，也不需要进行全量同步，因为从这个版本开始融入了部分同步的概念。部分同步的实现依赖于在master服务器内存中给每个slave服务器维护了一份同步日志和同步标识，每个slave服务器在跟master服务器进行同步时都会携带自己的同步标识和上次同步的最后位置。当主从连接断掉之后，slave服务器隔断时间（默认1s）主动尝试和master服务器进行连接，如果从服务器携带的偏移量标识还在master服务器上的同步备份日志中，那么就从slave发送的偏移量开始继续上次的同步操作，如果slave发送的偏移量已经不再master的同步备份日志中（可能由于主从之间断掉的时间比较长或者在断掉的短暂时间内master服务器接收到大量的写操作），则必须进行一次全量更新。在部分同步过程中，master会将本地记录的同步备份日志中记录的指令依次发送给slave服务器从而达到数据一致。
+
 ##### 17. Redis的线程模型是什么。
 ##### 18. 请思考一个方案，设计一个可以控制缓存总体大小的自动适应的本地缓存。
 ##### 19. 如何看待缓存的使用（本地缓存，集中式缓存），简述本地缓存和集中式缓存和优缺点。
