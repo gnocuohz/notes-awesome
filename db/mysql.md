@@ -204,3 +204,10 @@ SQL 性能优化的目标：至少要达到 range 级别，要求是 ref 级别�
 7. Using where:WHERE 子句用于限制哪一个行匹配下一个表或发送到客户。
 8. Using sort_union(...), Using union(...), Using intersect(...):这些函数说明如何为index_merge联接类型合并索引扫描。
 9. Using index for group-by:类似于访问表的Using index方式,Using index for group-by表示MySQL发现了一个索引,可以用来查 询GROUP BY或DISTINCT查询的所有列,而不要额外搜索硬盘访问实际的表。
+
+#### 32.TIMESTAMP & DATETIME
+1. TIMESTAMP：4字节（尽量使用，如果需要更细力度可使用BIGINT）
+2. DATETIME：8字节，与时区无关
+
+#### 33.分库分表上线
+https://www.cnblogs.com/rjzheng/p/9597810.html

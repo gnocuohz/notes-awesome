@@ -1,6 +1,7 @@
-
+https://juejin.im/post/5d1882b1f265da1ba84aa676#comment
 
 #### 异常处理
+**线程池内部处理逻辑：**  
 execute 方法直接执行 runnable.run()，如果有异常直接报错，并且创建一个新的 Worker。  
 ```java
 final void runWorker(Worker w) {
@@ -82,6 +83,45 @@ public void run() {
         int s = state;
         if (s >= INTERRUPTING)
             handlePossibleCancellationInterrupt(s);
+    }
+}
+```
+**正确处理异常：**  
+![](resources/juc/threadpool_exception.jpg)
+为工作者线程设置UncaughtExceptionHandler，在uncaughtException方法中处理异常
+```java
+ExecutorService threadPool = Executors.newFixedThreadPool(1, r -> {
+    Thread t = new Thread(r);
+       t.setUncaughtExceptionHandler(
+               (t1, e) -> {
+                   System.out.println(t1.getName() + "线程抛出的异常"+e);
+               });
+       return t;
+      });
+threadPool.execute(()->{
+   Object object = null;
+   System.out.print("result## " + object.toString());
+});
+```
+使用 ThreadPoolExecutor#afterExecute 
+```java
+class ExtendedExecutor extends ThreadPoolExecutor {
+    // 这可是jdk文档里面给的例子。。
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+        if (t == null && r instanceof Future<?>) {
+            try {
+                Object result = ((Future<?>) r).get();
+            } catch (CancellationException ce) {
+                t = ce;
+            } catch (ExecutionException ee) {
+                t = ee.getCause();
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt(); // ignore/reset
+            }
+        }
+        if (t != null)
+            System.out.println(t);
     }
 }
 ```

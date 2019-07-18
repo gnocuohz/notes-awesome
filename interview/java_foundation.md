@@ -125,7 +125,7 @@ full GC：当准备要触发一次young GC时，如果发现统计数据说之�
 > -XX:MaxTenuringThreshold 默认值15
 > -XX:TargetSurvivorRatio survivor区的目标使用率。默认50
 
-##### 5. 你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms和G1，包括原理，流程，优缺点。 垃圾回收算法的实现原理。
+##### 5. 你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms和G1，包括原理，流程，优缺点。垃圾回收算法的实现原理。
 
 
 ##### 6. 当出现了内存溢出，你怎么排错。
@@ -161,7 +161,7 @@ https://blog.csdn.net/javazejian/article/details/72772461#%E7%90%86%E8%A7%A3java
 `
 
 `
--XX:NewRatio
+-XX:NewRatio 默认1:2
 新生代（Eden + 2*S）与老年代（不包括永久区）的比值
 4 表示新生代 ：老年代 = 1：4 ，意思是老年代占 4/5
 `
