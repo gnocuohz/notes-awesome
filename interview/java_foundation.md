@@ -120,7 +120,11 @@ Class.forName Object.getClass() Class.class
 > - Full GC：收集整个堆，包括young gen、old gen、perm gen（如果存在的话）等所有部分的模式。
 > 最简单的分代式GC策略，按HotSpot VM的serial GC的实现来看，触发条件是：  
 young GC：当young gen中的eden区分配满的时候触发。注意young GC中有部分存活对象会晋升到old gen，所以young GC后old gen的占用量通常会有所升高。  
-full GC：当准备要触发一次young GC时，如果发现统计数据说之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。
+full GC：当准备要触发一次young GC时，如果发现统计数据说之前young GC的平均晋升大小比目前old gen剩余的空间大，则不会触发young GC而是转为触发full GC（因为HotSpot VM的GC里，除了CMS的concurrent collection之外，其它能收集old gen的GC都会同时收集整个GC堆，包括young gen，所以不需要事先触发一次单独的young GC）；或者，如果有perm gen的话，要在perm gen分配空间但已经没有足够空间时，也要触发一次full GC；或者System.gc()、heap dump带GC，默认也是触发full GC。  
+
+CMS promotion failed&concurrent mode failure  
+promotion faile 是在进行Minor GC时，Survivor Space放不下，对象只能放入老年代，而此时老年代也放不下造成的。（promotion failed时老年代CMS还没有机会进行回收，又放不下转移到老年代的对象，因此会出现下一个问题concurrent mode failure，需要stop-the-wold 降级为GC-Serail Old）。  
+
 
 > -XX:MaxTenuringThreshold 默认值15
 > -XX:TargetSurvivorRatio survivor区的目标使用率。默认50
@@ -375,7 +379,7 @@ https://baike.baidu.com/item/HTTP%E7%8A%B6%E6%80%81%E7%A0%81/5053660?fr=aladdin
 ip头：报文长度、ttl、协议、校验和、源ip、目标ip
 tcp：源端口、目标端口、序列号、确认号、状态位、滑动窗口、校验和
 ##### 7. 如何避免浏览器缓存。
-
+****
 ##### 8. 如何理解HTTP协议的无状态性。
 ##### 9. 简述Http请求get和post的区别以及数据包格式。
 ##### 10. HTTP有哪些method
@@ -394,6 +398,16 @@ tcp：源端口、目标端口、序列号、确认号、状态位、滑动窗�
 ##### 2. 如何使用redis和zookeeper实现分布式锁？有什么区别优缺点，会有什么问题，分别适用什么场景。（延伸：如果知道redlock，讲讲他的算法实现，争议在哪里）
 ##### 2. 如果有人恶意创建非法连接，怎么解决。
 ##### 2. 分布式事务的原理，优缺点，如何使用分布式事务，2pc 3pc 的区别，解决了哪些问题，还有哪些问题没解决，如何解决，你自己项目里涉及到分布式事务是怎么处理的。
+**2pc**  
+http://xiaorui.cc/2016/02/25/%E7%90%86%E8%A7%A3%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%9A%84%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A42pc/  
+https://www.cnblogs.com/stateis0/p/9062126.html  
+1.prepare  2.commit  
+缺点：同步阻塞，单点问题，数据不一致（可能只有部分接收到commit消息），过于保守  
+
+**3pc**  
+https://www.cnblogs.com/stateis0/p/9062128.html  
+1.CanCommit  2.PreCommit  3.do Commit  
+
 ##### 2. 什么是一致性hash。
 ##### 2. 什么是restful，讲讲你理解的restful。
 ##### 2. 如何设计一个良好的API。
@@ -513,8 +527,10 @@ lpop lpush rpop rpush blpop brpop lrange lrem
 ##### 5. Redis的数据结构都有哪些。
 string hash list set zset 
 ##### 6. Redis的使用要注意什么，讲讲持久化方式，内存设置，集群的应用和优劣势，淘汰策略等。
-https://www.cnblogs.com/kevingrace/p/5685332.html
-
+https://www.cnblogs.com/kevingrace/p/5685332.html  
+**过期策略**  
+定时删除、惰性删除、定期删除  
+**淘汰策略**  
 1. volatile-lru：从已设置过期时间的数据集（server.db[i].expires）中挑选最近最少使用的数据淘汰
 2. volatile-ttl：从已设置过期时间的数据集（server.db[i].expires）中挑选将要过期的数据淘汰
 3. volatile-random：从已设置过期时间的数据集（server.db[i].expires）中任意选择数据淘汰

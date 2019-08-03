@@ -1,7 +1,33 @@
 ### invoker 调用链
 ![](resources/middleware/dubbo/dubbo_invoker.jpg)
 
-### provider 调用链
+### provider 
+#### export
+```java
+ServiceBean#onApplicationEvent
+    ServiceConfig#doExport
+        ServiceConfig#doExportUrls
+            ServiceConfig#doExportUrlsFor1Protocol
+                // 生成代理类
+                Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
+                DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
+                Exporter<?> exporter = protocol.export(wrapperInvoker);
+                    
+                    RegistryProtocol#export
+                        RegistryProtocol#doLocalExport
+                            
+                            ProtocolFilterWrapper#export
+                                ProtocolListenerWrapper#export
+                                    DubboProtocol#export
+                                        DubboProtocol#openServer
+                                            DubboProtocol#createServer
+                                            
+                                                Exchangers#bind
+                                                    HeaderExchanger#bind
+                                                        Transporters#bind
+                                                            NettyTransporter#bind
+```
+#### 调用链
 ```java
 DubboProtocol#createServer
     Exchangers#bind(URL, ExchangeHandler DubboProtocol#requestHandler)
@@ -33,3 +59,6 @@ MultiMessageHandler
 ExtensionLoader#createExtension  
 ExtensionLoader#loadResource 时被判断为 wrapper 的实现类，会包装实际的SPI扩展。
 ![](resources/middleware/dubbo/wrapper_class.jpg)
+
+### router
+### load balance
