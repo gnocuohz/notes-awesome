@@ -94,3 +94,11 @@ public class RedisWithReentrantLock {
 ```
 
 [存结构体信息到底该使用 hash 还是 string](https://stackoverflow.com/questions/16375188/redis-strings-vs-redis-hashes-to-represent-json-efficiency)
+
+
+#### pipeline、Transaction对比
+ pipeline关注的是RTT时间，而transaction关注的是一致性
+ -- pipeline: 一次请求，服务端顺序执行，一次返回。
+ -- transaction: 多次请求（MULTI命令＋其他n个命令＋EXEC命令，所以至少是2次请求），服务端顺序执行，一次返回。
+ -- 集群模式下，使用pipeline时，slot必须是对的，不然服务端会返回redirecred to slot xxx的错误；不建议使用Transaction，因为假设一个Transaction中的命令即在Master A上执行，也在Master B执行，A成功了，B因为某种原因失败了，这样数据就不一致了，这个有点类似于分布式事务，无法保证绝对一致性。
+

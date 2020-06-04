@@ -163,7 +163,8 @@ https://blog.csdn.net/javazejian/article/details/72772461#%E7%90%86%E8%A7%A3java
 `
 -server -Xms${2*$MEM_TOTAL/5}g -Xmx${2*$MEM_TOTAL/5}g -XX:MaxDirectMemorySize=${$MEM_TOTAL/4}g -XX:MetaspaceSize=512m -XX:MaxMetaspaceSize=512m -XX:NewRatio=2 -XX:SurvivorRatio=10 -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:CMSMaxAbortablePrecleanTime=5000 -XX:+CMSClassUnloadingEnabled -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=80 
 `
-
+`-Xmx Java Heap最大值，默认值为物理内存的1/4
+`
 `
 -XX:NewRatio 默认1:2
 新生代（Eden + 2*S）与老年代（不包括永久区）的比值
@@ -184,6 +185,18 @@ jstack -l pid > *.log
 top -H p pid
 printf %x 线程ID
 ```
+- 线程dump的几种方式
+- JVMTI和JVMPI
+- jstack
+- kill -3
+    - kill -3 PID命令只能打印那一瞬间java进程的堆栈信息，适合在服务器响应慢，cpu、内存快速飙升等异常情况下使用，可以方便地定位到导致异常发生的java类，解决如死锁、连接超时等原因导致的系统异常问题。该命令不会杀死进程。
+- jvisualVM
+    - 之前研究过jVisualVM的抽样功能，原理是利用JMX的ThreadMXBean.dumpAllThreads生成stack样本，根据出现的概率分析各个方法占用时间，优点是对系统侵入很小，写个attach小工具无需对线上系统做任何修改，但是这个时间跟cpu时钟不能对等，比如流的read，锁的lock等，这些虽然占时间但并不代表消耗相应时间的cpu，想更详细的了解cpu占用，可以利用perf，perf的缺点是jvm的黑盒，不过利用一些辅助工具，如https://github.com/jrudolph/perf-map-agent 结合perf可以打通os与jvm的性能监控，不过若需要跟踪详细的栈，需要JDK1.8的-XX:+PreserveFramePointer。
+    - 估计 attach + ThreadMXBean.dumpAllThreads 吧
+- JMX from inside the JVM（JMX remote）
+    - ThreadMXBean，getThreadInfo or dumpThreadDump
+- JPDA (remote)
+- JMC
 
 ##### 13. 请解释如下jvm参数的含义：  
 `
